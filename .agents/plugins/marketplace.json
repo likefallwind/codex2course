@@ -1,0 +1,21 @@
+{
+  "name": "courseskills",
+  "interface": {
+    "displayName": "Courseskills"
+  },
+  "plugins": [
+    {
+      "name": "courseskills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/likefallwind/courseskills.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
