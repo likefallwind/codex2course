@@ -10,22 +10,95 @@ Course creation skills for **Codex** and **Claude Code**. This repository packag
 | **pdf2video** | Slide deck -> per-slide narration -> TTS audio -> mp4 |
 | **movecourse** | Copy generated lesson mp4 files into the aistudy101 website `course-assets` tree |
 
-The repository is intentionally laid out around one shared `skills/` directory. Codex loads it through `.codex-plugin/plugin.json`; Claude Code loads it through `.claude-plugin/plugin.json` or can install the same skills directly.
+The repository is intentionally laid out around one shared `skills/` directory. Claude Code can install those skills directly, Claude Code can also install this repo as a plugin through `.claude-plugin/marketplace.json`, and Codex can load it through `.codex-plugin/plugin.json`.
 
 ---
 
-## For Codex users
+## Install
 
-This repository is a Codex plugin. The plugin manifest points Codex at `./skills/`, so enabling the plugin makes all skills in this repo available as one course-production toolkit.
+### Claude Code skills
 
-For a local Codex plugin setup, place this checkout where your Codex plugin marketplace expects local plugins, for example:
+This is the simplest install path. Requires [Node.js](https://nodejs.org/). Restart Claude Code after installing.
+
+```bash
+npx skills add likefallwind/courseskills
+```
+
+To install only one skill:
+
+```bash
+npx skills add likefallwind/courseskills --skill ai-tutorials
+npx skills add likefallwind/courseskills --skill codex2course
+npx skills add likefallwind/courseskills --skill api2course
+npx skills add likefallwind/courseskills --skill pdf2video
+npx skills add likefallwind/courseskills --skill movecourse
+```
+
+<details>
+<summary>Manual skills install without Node.js</summary>
+
+```bash
+mkdir -p ~/.claude/skills
+
+curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/ai-tutorials/SKILL.md \
+  -o ~/.claude/skills/ai-tutorials.md
+
+curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/codex2course/SKILL.md \
+  -o ~/.claude/skills/codex2course.md
+
+curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/api2course/SKILL.md \
+  -o ~/.claude/skills/api2course.md
+
+curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/pdf2video/SKILL.md \
+  -o ~/.claude/skills/pdf2video.md
+
+curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/movecourse/SKILL.md \
+  -o ~/.claude/skills/movecourse.md
+```
+
+</details>
+
+### Claude Code plugin
+
+Use this if you want plugin-style namespacing and marketplace updates:
+
+```text
+/plugin marketplace add likefallwind/courseskills
+/plugin install courseskills@courseskills
+```
+
+This works because the repo includes `.claude-plugin/marketplace.json`, which points to the plugin in this repo. Installed plugin skills are namespaced:
+
+```text
+/courseskills:ai-tutorials
+/courseskills:codex2course
+/courseskills:api2course
+/courseskills:pdf2video
+/courseskills:movecourse
+```
+
+For local plugin development or testing, point Claude Code directly at this checkout:
+
+```bash
+claude --plugin-dir /path/to/courseskills
+```
+
+### Codex plugin
+
+This repository is also a Codex plugin. If `courseskills` is available in your Codex plugin marketplace, install it from:
+
+```text
+/plugins
+```
+
+Until then, use a local/private Codex plugin setup:
 
 ```bash
 mkdir -p ~/plugins
 git clone https://github.com/likefallwind/courseskills.git ~/plugins/courseskills
 ```
 
-Then register `courseskills` in your local Codex marketplace with a local source path such as `./plugins/courseskills`. A minimal `~/.agents/plugins/marketplace.json` entry looks like this:
+Register `courseskills` in your local Codex marketplace with a local source path such as `./plugins/courseskills`. A minimal `~/.agents/plugins/marketplace.json` entry:
 
 ```json
 {
@@ -57,79 +130,6 @@ The plugin root must contain:
 ├── .codex-plugin/plugin.json
 └── skills/
 ```
-
-Once enabled, start a Codex session and ask for the course workflow you need:
-
-```text
-Design a 10-lesson LLM application development course for CS undergrads.
-Create a course handout, generated slide images, and a PDF deck.
-Turn this generated slide deck into a narrated video.
-Move this generated course's videos to aistudy101 course-assets as ai-enlightenment.
-```
-
----
-
-## For Claude Code users
-
-This repository is also a Claude Code plugin. Claude Code discovers the plugin manifest at `.claude-plugin/plugin.json` and loads the root-level `skills/` directory.
-
-For local plugin development or testing, point Claude Code at this checkout as a plugin directory:
-
-```bash
-claude --plugin-dir /path/to/courseskills
-```
-
-When installed as a plugin, skills are namespaced by the plugin name, for example:
-
-```text
-/courseskills:ai-tutorials
-/courseskills:codex2course
-/courseskills:api2course
-/courseskills:pdf2video
-/courseskills:movecourse
-```
-
-You can still install the same skills as standalone Claude Code skills. This path requires [Node.js](https://nodejs.org/). Skills are installed to `~/.claude/skills/`. Restart Claude Code after installing.
-
-Install all skills:
-
-```bash
-npx skills add likefallwind/courseskills
-```
-
-Install a single skill:
-
-```bash
-npx skills add likefallwind/courseskills --skill ai-tutorials
-npx skills add likefallwind/courseskills --skill codex2course
-npx skills add likefallwind/courseskills --skill api2course
-npx skills add likefallwind/courseskills --skill pdf2video
-npx skills add likefallwind/courseskills --skill movecourse
-```
-
-<details>
-<summary>Manual install without Node.js</summary>
-
-```bash
-mkdir -p ~/.claude/skills
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/ai-tutorials/SKILL.md \
-  -o ~/.claude/skills/ai-tutorials.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/codex2course/SKILL.md \
-  -o ~/.claude/skills/codex2course.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/api2course/SKILL.md \
-  -o ~/.claude/skills/api2course.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/pdf2video/SKILL.md \
-  -o ~/.claude/skills/pdf2video.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/movecourse/SKILL.md \
-  -o ~/.claude/skills/movecourse.md
-```
-
-</details>
 
 ---
 

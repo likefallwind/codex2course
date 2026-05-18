@@ -1,0 +1,30 @@
+{
+  "name": "courseskills",
+  "owner": {
+    "name": "likefallwind"
+  },
+  "description": "Course creation plugins for Claude Code.",
+  "plugins": [
+    {
+      "name": "courseskills",
+      "source": "./",
+      "description": "AI course design, slide PDF generation, narrated video production, and course video publishing skills.",
+      "version": "1.0.0",
+      "author": {
+        "name": "likefallwind"
+      },
+      "homepage": "https://github.com/likefallwind/courseskills",
+      "repository": "https://github.com/likefallwind/courseskills",
+      "license": "MIT",
+      "keywords": [
+        "skills",
+        "course",
+        "slides",
+        "openai",
+        "tts",
+        "video"
+      ],
+      "category": "Productivity"
+    }
+  ]
+}
