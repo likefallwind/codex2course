@@ -1,66 +1,130 @@
-# codex2course
+# courseskills
 
-[Claude Code](https://claude.ai/code) skills for course creation — from design to narrated lecture video:
+Course creation skills for **Codex** and **Claude Code**. This repository packages the same workflows as both clients' plugin formats and as standalone Claude Code skills:
 
 | Skill | What it does |
 |---|---|
-| **ai-tutorials** | Design AI course syllabus, lectures, and hands-on projects |
-| **codex2course** | Topic / outline → handout → slide images → PDF |
-| **api2course** | Topic / outline → handout → OpenAI API slide images → PDF |
-| **pdf2video** | Slide deck → per-slide narration → TTS audio → mp4 |
-| **makecourse** | Publish existing course repos to aistudy101 and orchestrate the full generation pipeline when artifacts are missing |
-| **movecourse** | Low-level video-only helper for copying generated lesson mp4 files into the website `course-assets` tree |
+| **ai-tutorials** | Design AI course syllabi, lectures, and hands-on projects |
+| **codex2course** | Topic / outline -> handout -> Imagegen slide images -> PDF |
+| **api2course** | Topic / outline -> handout -> OpenAI API slide images -> PDF |
+| **pdf2video** | Slide deck -> per-slide narration -> TTS audio -> mp4 |
+| **movecourse** | Copy generated lesson mp4 files into the aistudy101 website `course-assets` tree |
 
-Each skill can be installed and used independently. `pdf2video` assumes the output layout produced by `codex2course`. `makecourse` can be used directly from an existing course repo for website publishing, and can also drive the full generation pipeline by shelling out to the `codex` CLI when artifacts are missing.
+The repository is intentionally laid out around one shared `skills/` directory. Codex loads it through `.codex-plugin/plugin.json`; Claude Code loads it through `.claude-plugin/plugin.json` or can install the same skills directly.
 
 ---
 
-## Install
+## For Codex users
 
-Requires [Node.js](https://nodejs.org/). Skills are installed to `~/.claude/skills/`. Restart Claude Code after installing.
+This repository is a Codex plugin. The plugin manifest points Codex at `./skills/`, so enabling the plugin makes all skills in this repo available as one course-production toolkit.
 
-### Single skill
+For a local Codex plugin setup, place this checkout where your Codex plugin marketplace expects local plugins, for example:
+
+```bash
+mkdir -p ~/plugins
+git clone https://github.com/likefallwind/courseskills.git ~/plugins/courseskills
+```
+
+Then register `courseskills` in your local Codex marketplace with a local source path such as `./plugins/courseskills`. A minimal `~/.agents/plugins/marketplace.json` entry looks like this:
+
+```json
+{
+  "name": "local",
+  "interface": {
+    "displayName": "Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "courseskills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/courseskills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+```
+
+The plugin root must contain:
+
+```text
+~/plugins/courseskills/
+├── .codex-plugin/plugin.json
+└── skills/
+```
+
+Once enabled, start a Codex session and ask for the course workflow you need:
+
+```text
+Design a 10-lesson LLM application development course for CS undergrads.
+Create a course handout, generated slide images, and a PDF deck.
+Turn this generated slide deck into a narrated video.
+Move this generated course's videos to aistudy101 course-assets as ai-enlightenment.
+```
+
+---
+
+## For Claude Code users
+
+This repository is also a Claude Code plugin. Claude Code discovers the plugin manifest at `.claude-plugin/plugin.json` and loads the root-level `skills/` directory.
+
+For local plugin development or testing, point Claude Code at this checkout as a plugin directory:
+
+```bash
+claude --plugin-dir /path/to/courseskills
+```
+
+When installed as a plugin, skills are namespaced by the plugin name, for example:
+
+```text
+/courseskills:ai-tutorials
+/courseskills:codex2course
+/courseskills:api2course
+/courseskills:pdf2video
+/courseskills:movecourse
+```
+
+You can still install the same skills as standalone Claude Code skills. This path requires [Node.js](https://nodejs.org/). Skills are installed to `~/.claude/skills/`. Restart Claude Code after installing.
+
+Install all skills:
+
+```bash
+npx skills add likefallwind/courseskills
+```
+
+Install a single skill:
 
 ```bash
 npx skills add likefallwind/courseskills --skill ai-tutorials
 npx skills add likefallwind/courseskills --skill codex2course
 npx skills add likefallwind/courseskills --skill api2course
 npx skills add likefallwind/courseskills --skill pdf2video
-npx skills add likefallwind/courseskills --skill makecourse
 npx skills add likefallwind/courseskills --skill movecourse
 ```
 
-### All skills
-
-```bash
-npx skills add likefallwind/courseskills
-```
-
 <details>
-<summary>Manual install (no Node.js)</summary>
+<summary>Manual install without Node.js</summary>
 
 ```bash
-# ai-tutorials
+mkdir -p ~/.claude/skills
+
 curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/ai-tutorials/SKILL.md \
   -o ~/.claude/skills/ai-tutorials.md
 
-# codex2course
 curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/codex2course/SKILL.md \
   -o ~/.claude/skills/codex2course.md
 
-# api2course
 curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/api2course/SKILL.md \
   -o ~/.claude/skills/api2course.md
 
-# pdf2video
 curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/pdf2video/SKILL.md \
   -o ~/.claude/skills/pdf2video.md
 
-# makecourse
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/makecourse/SKILL.md \
-  -o ~/.claude/skills/makecourse.md
-
-# movecourse
 curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/movecourse/SKILL.md \
   -o ~/.claude/skills/movecourse.md
 ```
@@ -73,17 +137,19 @@ curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skil
 
 ### codex2course
 
-- Claude Code with **imagegen** skill installed (used to render slide images)
+- Codex or Claude Code with the `imagegen` skill/tool available for slide image generation.
 - Python 3 + [Pillow](https://pillow.readthedocs.io/) for PDF assembly:
+
   ```bash
   pip install Pillow
   ```
 
 ### api2course
 
-- `OPENAI_API_KEY` set in the environment (used by `gpt-image-2`)
-- Python 3; the OpenAI image script uses only the standard library
+- `OPENAI_API_KEY` set in the environment. The image script uses `gpt-image-2`.
+- Python 3. The OpenAI image script uses only the standard library.
 - Python 3 + [Pillow](https://pillow.readthedocs.io/) for PDF assembly:
+
   ```bash
   export OPENAI_API_KEY=your_key_here
   pip install Pillow
@@ -91,22 +157,16 @@ curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skil
 
 ### pdf2video
 
-- A completed slide deck from `codex2course` or `api2course`, plus:
-- [ffmpeg](https://ffmpeg.org/) on `PATH` (video assembly)
-- [MINIMAX](https://www.minimaxi.com/) account + API key (TTS)
-- Python 3 + `requests`:
+- A completed slide deck from `codex2course` or `api2course`.
+- [ffmpeg](https://ffmpeg.org/) on `PATH` for video assembly.
+- TTS provider:
+  - `edge`: free Microsoft Edge read-aloud voices via `edge-tts`.
+  - `minimax`: paid API route. Requires `MINIMAX_API_KEY` and Python `requests`.
+
   ```bash
-  pip install requests
-  ```
-- Set your key before running:
-  ```bash
+  pip install edge-tts requests
   export MINIMAX_API_KEY=your_key_here
   ```
-
-### makecourse
-
-- For publishing existing courses: a local course repository with `lessonN/` folders and the aistudy101 website checkout at `/home/likefallwind/code/aistudy101-website`.
-- For generating missing artifacts: everything above, plus the inner skills installed and [Codex CLI](https://github.com/openai/codex) on `PATH`.
 
 ### movecourse
 
@@ -115,11 +175,11 @@ curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skil
 
 ---
 
-## Usage
+## Shared workflows
 
-Start a conversation in Claude Code and describe your goal. The skills trigger automatically from natural language:
+Both Codex and Claude Code use the same skills and output layout. The skills are incremental: they inspect what already exists and continue from the next missing stage instead of redoing approved work.
 
-```
+```text
 # ai-tutorials
 Design a 10-lesson LLM application development course for CS undergrads.
 
@@ -129,44 +189,15 @@ Create a 6-hour Python async course for backend engineers.
 # api2course
 Use api2course to create a 6-hour Python async course with OpenAI API generated slides.
 
-# pdf2video  
-Turn the course in ./course/ into a narrated lecture video, voice: male-qn-qingse.
+# pdf2video
+Turn the course in ./course/ into a narrated lecture video, voice: zh-CN-YunxiNeural.
 
-# Full pipeline
-Design a Vibe Coding course, then build slides and produce a narrated mp4.
-
-# Publish an existing course repo
-Publish this course repo to aistudy101.
+# Full course asset flow
+Design a Vibe Coding course, build slides, then produce a narrated mp4.
 
 # Publish generated videos only
 Move only this generated course's videos to aistudy101 course-assets as ai-enlightenment.
 ```
-
-These skills are incremental — they inspect what already exists and pick up at the next missing stage, so you can stop, review, and resume without redoing approved work.
-
-### Course publishing and full pipeline (`makecourse`)
-
-When an existing course repo should appear on the website, run `makecourse` from the course root. It first wires `course-sources.yaml` for lesson text and `course-assets.local.yaml` for local generated videos:
-
-```bash
-python ~/.agents/skills/makecourse/scripts/publish_course.py --source . --dry-run
-python ~/.agents/skills/makecourse/scripts/publish_course.py --source . --write-course-yaml
-```
-
-When an automation agent (openclaw, hermes, …) needs to produce missing courseware first, it should load the same skill and shell out to the Codex CLI per stage:
-
-```bash
-codex exec --cd ./course --sandbox workspace-write \
-  "Use the ai-tutorials skill to generate a complete course on '<topic>' …"
-
-codex exec --cd ./course/lesson1 --sandbox workspace-write \
-  "Use the codex2course skill on this directory …"
-
-codex exec --cd ./course/lesson1 --sandbox workspace-write \
-  "Use the pdf2video skill on this directory. TTS provider: edge …"
-```
-
-The skill itself documents the exact prompts, per-lesson loop, and verification checks. See [`skills/makecourse/SKILL.md`](skills/makecourse/SKILL.md).
 
 ---
 
@@ -174,22 +205,22 @@ The skill itself documents the exact prompts, per-lesson loop, and verification 
 
 ```text
 course/
-├── outline.md          # Course info + image-gen settings
-├── handout.md          # Full teaching notes (source of truth)
-├── slide-units/        # Per-slide content, derived from handout.md
-├── slides/             # Rendered .png pages (000-cover … zzz-ending)
+├── outline.md          # Course info + image-generation settings
+├── handout.md          # Full teaching notes
+├── slide-units/        # Per-slide content derived from handout.md
+├── slides/             # Rendered .png pages: 000-cover ... zzz-ending
 ├── course-deck.pdf     # Assembled slide deck
-├── audio.md            # TTS voice / padding settings  (pdf2video)
-├── narration/          # Per-slide spoken text          (pdf2video)
-├── audio/              # Per-slide .mp3 files           (pdf2video)
-└── course-video.mp4    # Final narrated lecture video   (pdf2video)
+├── audio.md            # TTS voice / padding settings
+├── narration/          # Per-slide spoken text
+├── audio/              # Per-slide .mp3 files
+└── course-video.mp4    # Final narrated lecture video
 ```
 
 ---
 
 ## Scripts
 
-Several skills ship helper scripts used internally — you can also run them directly:
+Several skills ship helper scripts used internally. You can also run them directly:
 
 | Script | Purpose |
 |---|---|
@@ -198,7 +229,7 @@ Several skills ship helper scripts used internally — you can also run them dir
 | `skills/api2course/scripts/generate_openai_image.py` | Generate one slide image with the OpenAI Image API |
 | `skills/api2course/scripts/split_handout.py` | Slice `handout.md` into `slide-units/` |
 | `skills/api2course/scripts/images2pdf.py` | Combine `slides/*.png` into a PDF |
-| `skills/pdf2video/scripts/synth_audio.py` | Call MINIMAX TTS for each narration file |
+| `skills/pdf2video/scripts/synth_audio.py` | Synthesize narration audio |
 | `skills/pdf2video/scripts/assemble_video.py` | Pair slides + audio into `course-video.mp4` |
 | `skills/movecourse/scripts/movecourse.py` | Copy or move `lessonN/*.mp4` into website course-assets |
 
