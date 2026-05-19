@@ -20,7 +20,7 @@ The repository is intentionally laid out around one shared `skills/` directory:
 
 ## Install
 
-### Claude Code skills
+### Skills(Easy)
 
 Requires [Node.js](https://nodejs.org/). Restart Claude Code after installing.
 
