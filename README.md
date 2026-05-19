@@ -10,7 +10,7 @@ Course creation skills for **Codex** and **Claude Code**. This repository packag
 | **pdf2video** | Slide deck -> per-slide narration -> TTS audio -> mp4 |
 | **movecourse** | Copy generated lesson mp4 files into the aistudy101 website `course-assets` tree |
 
-The repository is intentionally laid out around one shared `skills/` directory. Claude Code can install those skills directly, Claude Code can also install this repo as a plugin through `.claude-plugin/marketplace.json`, and Codex can load it through `.codex-plugin/plugin.json`.
+The repository is intentionally laid out around one shared `skills/` directory. Claude Code can install those skills directly, Claude Code can also install this repo as a plugin through `.claude-plugin/marketplace.json`, and Codex can install it from the Codex marketplace manifest at `.agents/plugins/marketplace.json`, which points back to the plugin manifest at `.codex-plugin/plugin.json`.
 
 ---
 
@@ -85,51 +85,39 @@ claude --plugin-dir /path/to/courseskills
 
 ### Codex plugin
 
-This repository is also a Codex plugin. If `courseskills` is available in your Codex plugin marketplace, install it from:
+This repository is also a Codex marketplace source. In Codex's plugin UI, use **Add marketplace** with:
 
 ```text
-/plugins
+Source: https://github.com/likefallwind/courseskills.git
+Git ref: main
+Sparse paths: .agents/plugins
 ```
 
-Until then, use a local/private Codex plugin setup:
+After the marketplace appears, select the `courseskills` marketplace source, search for `courseskills`, and install the plugin.
+
+For CLI users, the equivalent setup is:
 
 ```bash
-mkdir -p ~/plugins
-git clone https://github.com/likefallwind/courseskills.git ~/plugins/courseskills
+codex plugin marketplace add \
+  'https://github.com/likefallwind/courseskills.git' \
+  --ref 'main' \
+  --sparse '.agents/plugins'
+
+codex plugin list --source courseskills
+codex plugin install courseskills --source courseskills
 ```
 
-Register `courseskills` in your local Codex marketplace with a local source path such as `./plugins/courseskills`. A minimal `~/.agents/plugins/marketplace.json` entry:
+Do not add `.codex-plugin/` as the marketplace sparse path. `.codex-plugin/plugin.json` is the plugin manifest, while Codex's **Add marketplace** flow discovers marketplace manifests from `.agents/plugins/marketplace.json`.
 
-```json
-{
-  "name": "local",
-  "interface": {
-    "displayName": "Local Plugins"
-  },
-  "plugins": [
-    {
-      "name": "courseskills",
-      "source": {
-        "source": "local",
-        "path": "./plugins/courseskills"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
-  ]
-}
-```
-
-The plugin root must contain:
+The plugin root loaded by Codex contains:
 
 ```text
-~/plugins/courseskills/
+courseskills/
 ├── .codex-plugin/plugin.json
 └── skills/
 ```
+
+If you prefer a purely local/private marketplace, clone the repo and register a local source path such as `./plugins/courseskills` in your own `~/.agents/plugins/marketplace.json`.
 
 ---
 
