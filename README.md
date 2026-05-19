@@ -85,7 +85,13 @@ claude --plugin-dir /path/to/courseskills
 
 ### Codex plugin
 
-This repository is also a Codex marketplace source. In Codex's plugin UI, use **Add marketplace** with:
+Codex installs this repository through its marketplace system. The marketplace entry lives at `.agents/plugins/marketplace.json`; the plugin itself lives at `.codex-plugin/plugin.json` and loads the shared `skills/` directory.
+
+Use the install path that matches the Codex environment you actually run. Windows Codex App / Windows CLI and WSL Codex CLI use different home directories and do not automatically share marketplace state.
+
+#### Codex App on Windows
+
+Open the Codex App plugin page, choose **Add marketplace**, and enter:
 
 ```text
 Source: https://github.com/likefallwind/courseskills.git
@@ -95,19 +101,56 @@ Sparse paths: .agents/plugins
 
 After the marketplace appears, select the `courseskills` marketplace source, search for `courseskills`, and install the plugin.
 
-For CLI users, the equivalent setup is:
+Do not use `.codex-plugin/` as the marketplace sparse path. `.codex-plugin/plugin.json` is the plugin manifest, while **Add marketplace** discovers marketplace manifests from `.agents/plugins/marketplace.json`.
+
+If the App keeps showing `Failed to add marketplace` after a previous failed attempt, remove the stale marketplace from the **Windows** Codex CLI and then add it again:
+
+```powershell
+codex.cmd plugin marketplace remove courseskills
+codex.cmd plugin marketplace add "https://github.com/likefallwind/courseskills.git" --ref main --sparse ".agents/plugins"
+```
+
+Restart the Codex App after a successful CLI add.
+
+#### Codex CLI on Windows PowerShell
+
+Install the Windows Codex CLI if needed:
+
+```powershell
+npm.cmd install -g @openai/codex
+```
+
+Use `npm.cmd` / `codex.cmd` if PowerShell blocks `npm.ps1` or `codex.ps1` with an execution-policy error.
+
+Then add and install the plugin:
+
+```powershell
+codex.cmd plugin marketplace remove courseskills
+codex.cmd plugin marketplace add "https://github.com/likefallwind/courseskills.git" --ref main --sparse ".agents/plugins"
+codex.cmd plugin list --source courseskills
+codex.cmd plugin install courseskills --source courseskills
+```
+
+This configures the Windows Codex home, normally under `C:\Users\<you>\.codex`, and is the right place to fix Windows Codex App marketplace state.
+
+#### Codex CLI on WSL, Linux, or macOS
+
+Use this when you run Codex from WSL/Linux/macOS shells:
 
 ```bash
+codex plugin marketplace remove courseskills || true
 codex plugin marketplace add \
   'https://github.com/likefallwind/courseskills.git' \
-  --ref 'main' \
-  --sparse '.agents/plugins'
+  --ref main \
+  --sparse .agents/plugins
 
 codex plugin list --source courseskills
 codex plugin install courseskills --source courseskills
 ```
 
-Do not add `.codex-plugin/` as the marketplace sparse path. `.codex-plugin/plugin.json` is the plugin manifest, while Codex's **Add marketplace** flow discovers marketplace manifests from `.agents/plugins/marketplace.json`.
+On WSL, this configures the Linux home directory, usually `~/.codex` inside WSL. It will not fix or update the Windows Codex App unless that App is explicitly running against the same WSL-side configuration.
+
+#### Codex plugin layout
 
 The plugin root loaded by Codex contains:
 
@@ -117,7 +160,7 @@ courseskills/
 └── skills/
 ```
 
-If you prefer a purely local/private marketplace, clone the repo and register a local source path such as `./plugins/courseskills` in your own `~/.agents/plugins/marketplace.json`.
+If you prefer a purely local/private marketplace, clone this repo and register a local source path such as `./plugins/courseskills` in your own `~/.agents/plugins/marketplace.json`.
 
 ---
 
