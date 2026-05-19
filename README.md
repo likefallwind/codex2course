@@ -1,6 +1,6 @@
 # courseskills
 
-Course creation skills for **Codex** and **Claude Code**. This repository packages the same workflows as both clients' plugin formats and as standalone Claude Code skills:
+Course creation skills for **Codex** and **Claude Code**. This repository packages the same workflows as both clients' plugin formats and as standalone Claude Code skills.
 
 | Skill | What it does |
 |---|---|
@@ -10,7 +10,11 @@ Course creation skills for **Codex** and **Claude Code**. This repository packag
 | **pdf2video** | Slide deck -> per-slide narration -> TTS audio -> mp4 |
 | **movecourse** | Copy generated lesson mp4 files into the aistudy101 website `course-assets` tree |
 
-The repository is intentionally laid out around one shared `skills/` directory. Claude Code can install those skills directly, Claude Code can also install this repo as a plugin through `.claude-plugin/marketplace.json`, and Codex can install it from the Codex marketplace manifest at `.agents/plugins/marketplace.json`, which points back to the plugin manifest at `.codex-plugin/plugin.json`.
+The repository is intentionally laid out around one shared `skills/` directory:
+
+- Claude Code can install the skills directly.
+- Claude Code can also install this repo as a plugin through `.claude-plugin/marketplace.json`.
+- Codex can install it from the Codex marketplace manifest at `.agents/plugins/marketplace.json`, which points back to `.codex-plugin/plugin.json`.
 
 ---
 
@@ -18,13 +22,13 @@ The repository is intentionally laid out around one shared `skills/` directory. 
 
 ### Claude Code skills
 
-This is the simplest install path. Requires [Node.js](https://nodejs.org/). Restart Claude Code after installing.
+Requires [Node.js](https://nodejs.org/). Restart Claude Code after installing.
 
 ```bash
 npx skills add likefallwind/courseskills
 ```
 
-To install only one skill:
+Install one skill only:
 
 ```bash
 npx skills add likefallwind/courseskills --skill ai-tutorials
@@ -33,30 +37,6 @@ npx skills add likefallwind/courseskills --skill api2course
 npx skills add likefallwind/courseskills --skill pdf2video
 npx skills add likefallwind/courseskills --skill movecourse
 ```
-
-<details>
-<summary>Manual skills install without Node.js</summary>
-
-```bash
-mkdir -p ~/.claude/skills
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/ai-tutorials/SKILL.md \
-  -o ~/.claude/skills/ai-tutorials.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/codex2course/SKILL.md \
-  -o ~/.claude/skills/codex2course.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/api2course/SKILL.md \
-  -o ~/.claude/skills/api2course.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/pdf2video/SKILL.md \
-  -o ~/.claude/skills/pdf2video.md
-
-curl -fsSL https://raw.githubusercontent.com/likefallwind/courseskills/main/skills/movecourse/SKILL.md \
-  -o ~/.claude/skills/movecourse.md
-```
-
-</details>
 
 ### Claude Code plugin
 
@@ -67,7 +47,7 @@ Use this if you want plugin-style namespacing and marketplace updates:
 /plugin install courseskills@courseskills
 ```
 
-This works because the repo includes `.claude-plugin/marketplace.json`, which points to the plugin in this repo. Installed plugin skills are namespaced:
+Installed plugin skills are namespaced:
 
 ```text
 /courseskills:ai-tutorials
@@ -77,7 +57,7 @@ This works because the repo includes `.claude-plugin/marketplace.json`, which po
 /courseskills:movecourse
 ```
 
-For local plugin development or testing, point Claude Code directly at this checkout:
+For local plugin development or testing:
 
 ```bash
 claude --plugin-dir /path/to/courseskills
@@ -85,7 +65,9 @@ claude --plugin-dir /path/to/courseskills
 
 ### Codex plugin
 
-This repository is also a Codex marketplace source. In Codex's plugin UI, use **Add marketplace** with:
+Codex installs this repository through its marketplace system.
+
+For Codex App on Windows, use **Add marketplace** with:
 
 ```text
 Source: https://github.com/likefallwind/courseskills.git
@@ -93,31 +75,22 @@ Git ref: main
 Sparse paths: .agents/plugins
 ```
 
-After the marketplace appears, select the `courseskills` marketplace source, search for `courseskills`, and install the plugin.
-
-For CLI users, the equivalent setup is:
+For Codex CLI:
 
 ```bash
+codex plugin marketplace remove courseskills || true
 codex plugin marketplace add \
   'https://github.com/likefallwind/courseskills.git' \
-  --ref 'main' \
-  --sparse '.agents/plugins'
+  --ref main \
+  --sparse .agents/plugins
 
 codex plugin list --source courseskills
 codex plugin install courseskills --source courseskills
 ```
 
-Do not add `.codex-plugin/` as the marketplace sparse path. `.codex-plugin/plugin.json` is the plugin manifest, while Codex's **Add marketplace** flow discovers marketplace manifests from `.agents/plugins/marketplace.json`.
+On Windows PowerShell, use `codex.cmd` instead of `codex` if PowerShell blocks `.ps1` scripts.
 
-The plugin root loaded by Codex contains:
-
-```text
-courseskills/
-├── .codex-plugin/plugin.json
-└── skills/
-```
-
-If you prefer a purely local/private marketplace, clone the repo and register a local source path such as `./plugins/courseskills` in your own `~/.agents/plugins/marketplace.json`.
+For detailed Codex App, Windows CLI, WSL, Linux, and macOS setup notes, see [docs/codex-install.md](docs/codex-install.md).
 
 ---
 
