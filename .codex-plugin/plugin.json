@@ -32,6 +32,7 @@
       "Read",
       "Write"
     ],
+    "composerIcon": "./assets/icon.svg",
     "websiteURL": "https://github.com/likefallwind/courseskills",
     "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
     "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
